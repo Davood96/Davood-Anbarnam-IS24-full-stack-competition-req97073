@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Formik, Form, Field, FieldArray, FormikErrors } from "formik";
+import { ProductPatchDto } from "../dto/product";
 
 interface EditProductComponentProps {
   productId: string;
@@ -8,20 +9,10 @@ interface EditProductComponentProps {
   productName: string;
   productOwnerName: string;
   scrumMasterName: string;
-  methodology: string;
+  methodology: "Agile" | "Waterfall";
 }
 
-export const EditProductComponent: React.FC<Record<string, never>> = () => {
-  const location = useLocation();
-  const product: EditProductComponentProps = location.state;
-  return (
-    <>
-      <EditProductFormComponent data={product} />
-    </>
-  );
-};
-
-const buildProductDto = (data: EditProductComponentProps) => ({
+const buildProductDto = (data: EditProductComponentProps): ProductPatchDto => ({
   Developers: data.Developers.map((dev) => dev.trim()),
   productName: data.productName.trim(),
   productOwnerName: data.productOwnerName.trim(),
@@ -32,24 +23,46 @@ const buildProductDto = (data: EditProductComponentProps) => ({
 const EditProductFormComponent: React.FC<{
   data: EditProductComponentProps;
 }> = (props) => {
+  const [error, setError] = useState(false);
   const navigate = useNavigate();
+
+  const handleSubmit = async (
+    values: EditProductComponentProps
+  ): Promise<void> => {
+    setError(false);
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/products/${values.productId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(buildProductDto(values)),
+        }
+      );
+      if (res.ok) {
+        alert("Edit Successful!");
+        navigate("/");
+      } else {
+        setError(true);
+      }
+    } catch (err) {
+      setError(true);
+      console.error(err);
+    }
+  };
 
   return (
     <div>
+      {error && (
+        <div style={{ color: "red", marginBottom: "4px" }}>
+          Someething went wrong when editing the product. Please try again
+        </div>
+      )}
       <Formik
         initialValues={props.data}
-        onSubmit={(values) => {
-          fetch(`http://localhost:3000/api/products/${values.productId}`, {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(buildProductDto(values)),
-          }).then(() => {
-            alert("Edit Successful!");
-            navigate("/");
-          });
-        }}
+        onSubmit={handleSubmit}
         validate={(values) => {
           const errors: FormikErrors<EditProductComponentProps> = {};
           if (values.Developers.some((dev) => dev.trim() === "")) {
@@ -211,4 +224,10 @@ const EditProductFormComponent: React.FC<{
       </Formik>
     </div>
   );
+};
+
+export const EditProductComponent: React.FC<Record<string, never>> = () => {
+  const location = useLocation();
+  const product: EditProductComponentProps = location.state;
+  return <EditProductFormComponent data={product} />;
 };

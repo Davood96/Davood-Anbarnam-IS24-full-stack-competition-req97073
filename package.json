@@ -1,0 +1,32 @@
+{
+  "name": "is24-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install:back-end": "npm --prefix back-end install",
+    "install:front-end": "npm --prefix front-end install",
+    "postinstall": "concurrently \"npm run install:back-end\" \"npm run install:front-end\"",
+    "build:back-end": "npm --prefix back-end run build",
+    "build:front-end": "npm --prefix front-end run build",
+    "build": "concurrently \"npm run build:back-end\" \"npm run build:front-end\"",
+    "start:back-end": "npm --prefix back-end run start",
+    "start:front-end": "npm --prefix front-end run start",
+    "start": "concurrently \"npm run start:back-end\" \"npm run start:front-end\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Davood96/Davood-Anbarnam-IS24-full-stack-competition-req97073.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Davood96/Davood-Anbarnam-IS24-full-stack-competition-req97073/issues"
+  },
+  "homepage": "https://github.com/Davood96/Davood-Anbarnam-IS24-full-stack-competition-req97073#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+}

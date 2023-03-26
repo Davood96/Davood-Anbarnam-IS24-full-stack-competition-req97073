@@ -1,16 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import fetch from "node-fetch";
-
-interface ProductDto {
-  productId: string;
-  productName: string;
-  productOwnerName: string;
-  Developers: string[];
-  scrumMasterName: string;
-  startDate: string;
-  methodology: string;
-}
+import { ProductDto } from "../dto/product";
 
 const Cell: React.FC<{ data: string; style?: React.CSSProperties }> = (
   props
@@ -55,27 +46,33 @@ const Row: React.FC<{ dto: ProductDto; rowNum: number }> = (props) => {
       <Cell data={item.scrumMasterName} />
       <Cell data={item.startDate} />
       <Cell data={item.methodology} />
-      <Link to={`/products/${item.productId}`} state={item}>
-        <span>&#9998;</span>
+      <Link
+        to={`/products/${item.productId}`}
+        state={item}
+        style={{ textDecoration: "inherit", color: "inherit" }}
+      >
+        <button style={{ cursor: "pointer" }}>Edit</button>
       </Link>
     </div>
   );
 };
 
-export const App: React.FC<Record<string, never>> = () => {
-  console.log("HERE!");
+export const ProductListComponent: React.FC<Record<string, never>> = () => {
   const [products, setProducts] = React.useState<ProductDto[]>([]);
   const [error, setError] = React.useState<boolean>(false);
+
+  const fetchData = async (): Promise<ProductDto[]> => {
+    const res = await fetch("http://localhost:3000/api/products");
+    if (res.ok) {
+      return res.json() as Promise<ProductDto[]>;
+    }
+    return Promise.reject("GET failed");
+  };
+
   React.useEffect(() => {
-    const fetchData = async () => {
-      const data = (await (
-        await fetch("http://localhost:3000/api/products")
-      ).json()) as { products: ProductDto[] };
-      return data;
-    };
     fetchData()
       .then((data) => {
-        setProducts(data.products);
+        setProducts(data);
         setError(false);
       })
       .catch((err) => {
@@ -84,11 +81,16 @@ export const App: React.FC<Record<string, never>> = () => {
       });
   }, []);
   return error ? (
-    <>Something went wrong</>
+    <h1>Something went wrong</h1>
   ) : (
     <>
-      <span>Total Products: {products.length}</span>
-      <Link to={`/products`}>Add New Product</Link>
+      <div>Total Products: {products.length}</div>
+      <Link
+        to={`/products`}
+        style={{ textDecoration: "inherit", color: "inherit" }}
+      >
+        <button style={{ cursor: "pointer" }}>Add New Product</button>
+      </Link>
       <div style={{ display: "flex", width: "100%" }}>
         {[
           "Product Number",

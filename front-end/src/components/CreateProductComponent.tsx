@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import DatePicker from "react-date-picker";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Formik,
   Form,
@@ -9,23 +9,20 @@ import {
   FieldProps,
   FormikErrors,
 } from "formik";
+import { dateoToStr, ProductPostDto } from "../dto/product";
 
 interface CreateProductComponentProps {
   Developers: string[];
   productName: string;
   productOwnerName: string;
   scrumMasterName: string;
-  methodology: string;
+  methodology: "Agile" | "Waterfall";
   startDate: Date;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const dateoToStr = (date: Date) =>
-  `${date.getFullYear()}/${date.getMonth() + 1 < 10 ? "0" : ""}${
-    date.getMonth() + 1
-  }/${date.getDate() < 10 ? "0" : ""}${date.getDate()}`;
-
-const buildProductDto = (data: CreateProductComponentProps) => ({
+const buildProductDto = (
+  data: CreateProductComponentProps
+): ProductPostDto => ({
   ...data,
   Developers: data.Developers.map((dev) => dev.trim()),
   startDate: dateoToStr(data.startDate),
@@ -33,22 +30,6 @@ const buildProductDto = (data: CreateProductComponentProps) => ({
   productOwnerName: data.productOwnerName.trim(),
   scrumMasterName: data.scrumMasterName.trim(),
 });
-
-export const CreateProductComponent: React.FC<Record<string, never>> = () => {
-  const defaultData: CreateProductComponentProps = {
-    Developers: [],
-    productName: "",
-    productOwnerName: "",
-    scrumMasterName: "",
-    methodology: "Waterfall",
-    startDate: new Date(),
-  };
-  return (
-    <>
-      <CreateProductFormComponent data={defaultData} />
-    </>
-  );
-};
 
 const DatePickerField: React.FC<FieldProps> = ({ field, form }) => (
   <div>
@@ -64,25 +45,44 @@ const DatePickerField: React.FC<FieldProps> = ({ field, form }) => (
 const CreateProductFormComponent: React.FC<{
   data: CreateProductComponentProps;
 }> = (props) => {
-  //   const navigate = useNavigate();
+  const [error, setError] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (
+    values: CreateProductComponentProps
+  ): Promise<void> => {
+    setError(false);
+    const dto = buildProductDto(values);
+    try {
+      const res = await fetch("http://localhost:3000/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dto),
+      });
+      if (res.ok) {
+        alert("Create Successful!");
+        navigate("/");
+      } else {
+        setError(true);
+      }
+    } catch (err) {
+      setError(true);
+      console.error(err);
+    }
+  };
 
   return (
     <div>
+      {error && (
+        <div style={{ color: "red", marginBottom: "4px" }}>
+          Something went wrong when creating the product. Please try again
+        </div>
+      )}
       <Formik
         initialValues={props.data}
-        onSubmit={(values) => {
-          const dto = buildProductDto(values);
-          fetch("http://localhost:3000/api/products", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(dto),
-          }).then(() => {
-            alert("Create Successful!");
-            // navigate("/");
-          });
-        }}
+        onSubmit={handleSubmit}
         validate={(values) => {
           const errors: FormikErrors<CreateProductComponentProps> = {};
           if (values.Developers.some((dev) => dev.trim() === "")) {
@@ -254,4 +254,16 @@ const CreateProductFormComponent: React.FC<{
       </Formik>
     </div>
   );
+};
+
+export const CreateProductComponent: React.FC<Record<string, never>> = () => {
+  const defaultData: CreateProductComponentProps = {
+    Developers: [],
+    productName: "",
+    productOwnerName: "",
+    scrumMasterName: "",
+    methodology: "Agile",
+    startDate: new Date(),
+  };
+  return <CreateProductFormComponent data={defaultData} />;
 };
