@@ -4,7 +4,6 @@ You should be able to install, build and start the app by entering the following
 
 ```Bash
 npm i
-npm run postinstall
 npm run build
 npm run start
 ```
