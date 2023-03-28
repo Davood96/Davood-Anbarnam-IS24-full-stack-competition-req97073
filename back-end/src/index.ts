@@ -16,10 +16,12 @@ app.get("/api/health", (_req: Request, res: Response) => {
   res.status(200).send("API Healthy");
 });
 
+// GET a list of products in no particular order
 app.get("/api/products", (_req: Request, res: Response) => {
   res.status(200).json([...data.values()]);
 });
 
+// Create a new product
 app.post("/api/products", (req: Request, res: Response) => {
   const newProduct = req.body as ProductPostDto;
 
@@ -29,6 +31,7 @@ app.post("/api/products", (req: Request, res: Response) => {
   res.status(201).send();
 });
 
+// Update an existing product
 app.patch("/api/products/:productId", (req: Request, res: Response) => {
   const productId = req.params.productId;
   const currentProduct = data.get(productId);

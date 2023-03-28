@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import fetch from "node-fetch";
 import { ProductDto } from "../dto/product";
 
+// Represents a table cell
 const Cell: React.FC<{ data: string; style?: React.CSSProperties }> = (
   props
 ) => {
@@ -22,6 +23,7 @@ const Cell: React.FC<{ data: string; style?: React.CSSProperties }> = (
   );
 };
 
+// Represents a table row. Basically a concatenation of Cell's
 const Row: React.FC<{ dto: ProductDto; rowNum: number }> = (props) => {
   const item = props.dto;
   return (

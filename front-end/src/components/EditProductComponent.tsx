@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Formik, Form, Field, FieldArray, FormikErrors } from "formik";
-import { ProductPatchDto } from "../dto/product";
+import { MAX_DEVS_PER_PRODUCT, ProductPatchDto } from "../dto/product";
 
 interface EditProductComponentProps {
   productId: string;
@@ -68,6 +68,7 @@ const EditProductFormComponent: React.FC<{
           if (values.Developers.some((dev) => dev.trim() === "")) {
             errors.Developers = ["Developer name must not be empty"];
           }
+          // Check for duplicate names
           if (
             new Set(values.Developers.map((dev) => dev.trim())).size <
             values.Developers.length
@@ -201,13 +202,13 @@ const EditProductFormComponent: React.FC<{
                         />
                         <button
                           type="button"
-                          onClick={() => arrayHelpers.remove(index)} // remove a dev from the list
+                          onClick={() => arrayHelpers.remove(index)}
                         >
                           -
                         </button>
                       </div>
                     ))}
-                  {values.Developers.length < 5 && (
+                  {values.Developers.length < MAX_DEVS_PER_PRODUCT && (
                     <button type="button" onClick={() => arrayHelpers.push("")}>
                       {/* show this when less than 5 devs are in the list */}
                       Add a Developer

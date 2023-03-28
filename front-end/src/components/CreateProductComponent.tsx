@@ -9,7 +9,11 @@ import {
   FieldProps,
   FormikErrors,
 } from "formik";
-import { dateoToStr, ProductPostDto } from "../dto/product";
+import {
+  dateoToStr,
+  MAX_DEVS_PER_PRODUCT,
+  ProductPostDto,
+} from "../dto/product";
 
 interface CreateProductComponentProps {
   Developers: string[];
@@ -88,6 +92,7 @@ const CreateProductFormComponent: React.FC<{
           if (values.Developers.some((dev) => dev.trim() === "")) {
             errors.Developers = ["Developer name must not be empty"];
           }
+          // Check for duplicate names
           if (
             new Set(values.Developers.map((dev) => dev.trim())).size <
             values.Developers.length
@@ -231,13 +236,13 @@ const CreateProductFormComponent: React.FC<{
                         />
                         <button
                           type="button"
-                          onClick={() => arrayHelpers.remove(index)} // remove a dev from the list
+                          onClick={() => arrayHelpers.remove(index)}
                         >
                           -
                         </button>
                       </div>
                     ))}
-                  {values.Developers.length < 5 && (
+                  {values.Developers.length < MAX_DEVS_PER_PRODUCT && (
                     <button type="button" onClick={() => arrayHelpers.push("")}>
                       {/* show this when less than 5 devs are in the list */}
                       Add a Developer

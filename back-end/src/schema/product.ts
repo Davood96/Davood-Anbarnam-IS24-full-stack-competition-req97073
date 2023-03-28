@@ -1,3 +1,4 @@
+export const MAX_DEVS_PER_PRODUCT = 5;
 export interface ProductDBRecord {
   productId: string;
   productName: string;
@@ -8,6 +9,11 @@ export interface ProductDBRecord {
   methodology: "Agile" | "Waterfall";
 }
 
+/**
+ *
+ * Generates mock data to be used by endpoints
+ *
+ */
 export const generateRandomData = (n: number): ProductDBRecord[] => {
   const DEV_NAMES = ["Batman", "Robin", "Nightwing", "Oracle", "Red Hood"];
   const SCRUM_MASTERS = [
@@ -29,7 +35,7 @@ export const generateRandomData = (n: number): ProductDBRecord[] => {
   const result: ProductDBRecord[] = [];
 
   for (let i = 0; i < n; i += 1) {
-    const numDevs = Math.floor(Math.random() * 6);
+    const numDevs = Math.floor(Math.random() * (MAX_DEVS_PER_PRODUCT + 1));
     const Developers = DEV_NAMES.slice(0, numDevs);
     const scrumMasterName =
       SCRUM_MASTERS[Math.floor(Math.random() * SCRUM_MASTERS.length)];
